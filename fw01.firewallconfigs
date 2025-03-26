@@ -1,0 +1,102 @@
+# FW01 Interface Zones:
+set zone-policy zone WAN interface eth0
+set zone-policy zone DMZ interface eth1
+set zone-policy zone LAN interface eth2
+
+
+# WAN and DMZ:
+set firewall name WAN-to-DMZ default-action drop
+set firewall name DMZ-to-WAN default-action drop
+set firewall name WAN-to-DMZ enable-default-log 
+set firewall name DMZ-to-WAN enable-default-log
+set zone-policy zone WAN from DMZ firewall name DMZ-to-WAN 
+set zone-policy zone DMZ from WAN firewall name WAN-to-DMZ
+
+
+# WAN-to-DMZ:
+set firewall name WAN-to-DMZ rule 10 action accept
+set firewall name WAN-to-DMZ rule 10 description "Allow HTTP from WAN to DMZ"
+set firewall name WAN-to-DMZ rule 10 protocol tcp
+set firewall name WAN-to-DMZ rule 10 destination port 80
+set firewall name WAN-to-DMZ rule 10 destination address 172.16.50.3
+
+set firewall name WAN-to-DMZ rule 1 action accept
+set firewall name WAN-to-DMZ rule 1 state established enable
+set firewall name WAN-to-DMZ rule 1 state related enable 
+
+
+# May not need
+# set firewall name WAN-to-DMZ rule 20 action accept
+# set firewall name WAN-to-DMZ rule 20 protocol udp
+# set firewall name WAN-to-DMZ rule 20 destination port 53
+# set firewall name WAN-to-DMZ rule 20 destination address 172.16.50.2
+# set protocols 172.16.50.0/29 next-hop 172.16.50.2 
+
+
+
+# DMZ-to-WAN:
+set firewall name DMZ-to-WAN rule 1 action accept
+set firewall name DMZ-to-WAN rule 1 description “allow established connections back out”
+set firewall name DMZ-to-WAN rule 1 state established enable
+
+
+
+
+# DMZ and LAN:
+set firewall name LAN-to-DMZ default-action drop
+set firewall name DMZ-to-LAN default-action drop
+set firewall name LAN-to-DMZ enable-default-log 
+set firewall name DMZ-to-LAN enable-default-log
+set zone-policy zone LAN from DMZ firewall name DMZ-to-LAN
+set zone-policy zone DMZ from LAN firewall name LAN-to-DMZ
+
+
+DMZ-to-LAN:
+set firewall name DMZ-to-LAN rule 10 action accept
+set firewall name DMZ-to-LAN rule 10 description “agent to wazuh”
+set firewall name DMZ-to-LAN rule 10 protocol tcp
+set firewall name DMZ-to-LAN rule 10 destination port 1514,1515
+set firewall name DMZ-to-LAN rule 10 destination address 172.16.200.10
+
+set firewall name DMZ-to-LAN rule 1 action accept
+set firewall name DMZ-to-LAN rule 1 description “allow connections back out”
+set firewall name DMZ-to-LAN rule 1 state established enable
+
+
+# LAN-to-DMZ:
+set firewall name LAN-to-DMZ rule 1 action accept
+set firewall name LAN-to-DMZ rule 1 description “allow connections back out” 
+set firewall name LAN-to-DMZ rule 1 state established enable
+
+
+set firewall name LAN-to-DMZ rule 10 action accept
+set firewall name LAN-to-DMZ rule 10 “allow 80/tcp from LAN to web01”
+set firewall name LAN-to-DMZ rule 10 protocol tcp
+set firewall name LAN-to-DMZ rule 10 destination port 80 
+set firewall name LAN-to-DMZ rule 10 destination address 172.16.50.3
+
+
+set firewall name LAN-to-DMZ rule 11 action accept
+set firewall name LAN-to-DMZ rule 11 description “allow 22/tcp from mgm01 to DMZ” 
+set firewall name LAN-to-DMZ rule 11 protocol tcp
+set firewall name LAN-to-DMZ rule 11 destination port 22
+set firewall name LAN-to-DMZ rule 11 source address 172.16.150.10
+set firewall name LAN-to-DMZ rule 11 destination adddress 172.16.50.0/29
+
+
+# LAN and WAN:
+set firewall name LAN-to-WAN default-action drop
+set firewall name WAN-to-LAN default-action drop
+set firewall name LAN-to-WAN enable-default-log
+set firewall name WAN-to-LAN enable-default-log
+set zone-policy zone LAN from WAN firewall name WAN-to-LAN
+set zone-policy zone WAN from LAN firewall name LAN-to-WAN
+
+# LAN-to-WAN:
+set firewall name LAN-to-WAN rule 1 action accept
+
+# WAN-to-LAN:
+set firewall name WAN-to-LAN rule 1 action accept
+set firewall name WAN-to-LAN rule 1 description “allow the connections back out”
+set firewall name WAN-to-LAN rule 1 state related enable 
+set firewall name WAN-to-LAN rule 1 state established enable
