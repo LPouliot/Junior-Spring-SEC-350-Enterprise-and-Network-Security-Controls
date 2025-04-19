@@ -11,7 +11,6 @@ set interfaces ethernet eth2 description 'SEC350-LAN'
 set nat destination rule 10 description 'HTTP TO NGINX'
 set nat destination rule 10 destination port '80'
 set nat destination rule 10 inbound-interface 'eth0'
-
 set nat destination rule 10 protocol 'tcp'
 set nat destination rule 10 translation address '172.16.50.3'
 set nat destination rule 10 translation port '80'
